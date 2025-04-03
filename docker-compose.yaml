@@ -21,19 +21,6 @@ services:
     env_file: .env.srv
     networks:
       - geography-network
-  geography-frontend:
-    image: maxkhal/geography-frontend:5
-    container_name: frontend
-    hostname: geography-frontend
-    depends_on:
-      - geography-server
-    ports:
-      - '3000:3000'
-    env_file:
-      - .env.ui
-    networks:
-      - geography-network
-
 networks:
     geography-network:
         driver: bridge

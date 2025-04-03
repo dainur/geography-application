@@ -1,6 +1,6 @@
 FROM mongo:latest
 
-LABEL maintainer = "xadmax@gmail.com"
+LABEL maintainer = "example@gmail.com"
 
 COPY setup-db.sh /docker-entrypoint-initdb.d/
 RUN chmod 755 /docker-entrypoint-initdb.d/*.sh

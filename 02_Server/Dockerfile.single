@@ -1,5 +1,5 @@
 FROM node:8.14-alpine
-LABEL mantainer="xadmax@gmail.com"
+LABEL mantainer="example@gmail.com"
 
 WORKDIR /usr/src/app
 ENV MONGODB_URL="mongodb://admin:admin@geography-db:27017/geographydb?authSource=admin"
