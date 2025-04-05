@@ -7,27 +7,48 @@ on:
     branches: [ "master" ]
 
 jobs:
-
-  build:
-
+  build-and-push:
+    name: Build and Push Docker Images (DB + Server)
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    - name: Set Tag
+    - name: Set Image Tag
       run: echo "TAG_NAME=$(date +%s)" >> $GITHUB_ENV
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-    - name: Build the Docker image
-      run: |
-       cd 01_DB
-       docker build . --file Dockerfile.single --tag ${{ secrets.DOCKERHUB_USERNAME }}/geo-db:$TAG_NAME 
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Push Docker image to Docker Hub
+    - name: Build DB Image
+      run: |
+        cd 01_DB
+        docker build . \
+          -f Dockerfile.single \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/geo-db:$TAG_NAME
+
+    - name: Build Server Image
+      run: |
+        cd 02_Server
+        docker build . \
+          -f Dockerfile.single \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/geo-server:$TAG_NAME
+
+    - name: Push DB Image to Docker Hub
       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/geo-db:$TAG_NAME
+
+    - name: Push Server Image to Docker Hub
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/geo-server:$TAG_NAME
+
+    - name: Print Image Tags
+      run: |
+        echo "Pushed images:"
+        echo "DB     => ${{ secrets.DOCKERHUB_USERNAME }}/geo-db:$TAG_NAME"
+        echo "Server => ${{ secrets.DOCKERHUB_USERNAME }}/geo-server:$TAG_NAME"
