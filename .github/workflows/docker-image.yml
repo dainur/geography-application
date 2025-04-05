@@ -1,5 +1,4 @@
 name: Terraform EC2 Provisioning
-
 on:
   workflow_dispatch:  # Manual trigger
 
