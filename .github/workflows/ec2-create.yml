@@ -9,9 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Configure AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -19,28 +21,46 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
+      # Set up Terraform
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.6.0  # or latest stable version
+          terraform_version: 1.6.0
 
+      # Cache Terraform providers
+      - name: Cache Terraform providers
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-${{ runner.os }}-${{ hashFiles('infra/**.tf') }}
+          restore-keys: terraform-${{ runner.os }}-
+
+      # Terraform Init
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -plugin-dir=$HOME/.terraform.d/plugin-cache
         working-directory: infra
 
+      # Terraform Format Check
       - name: Terraform Format Check
         run: terraform fmt -check
         working-directory: infra
 
+      # Terraform Validate
       - name: Terraform Validate
         run: terraform validate
         working-directory: infra
 
+      # Terraform Plan
       - name: Terraform Plan
         run: terraform plan
         working-directory: infra
 
+      # Terraform Apply
       - name: Terraform Apply
         run: terraform apply -auto-approve
         working-directory: infra
-        
+
+      # Terraform Output
+      - name: Terraform Output
+        run: terraform output
+        working-directory: infra
